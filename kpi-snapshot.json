@@ -1,7 +1,7 @@
 {
   "asset_name": "vehicle-service-management",
   "manual_time_minutes_per_run": 60,
-  "estimated_runs_per_week": 10,
+  "estimated_runs_per_week": 100,
   "snapshot_generated_at": "2026-07-01T09:42:00Z",
   "snapshot_generated_by": "vishalm.mishra@fulcrumapp.com"
 }
