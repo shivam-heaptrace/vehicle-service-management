@@ -1,0 +1,259 @@
+/* ============================================================
+   FULCRUM DESIGN SYSTEM — TOKENS
+   Sourced from Fulcrum Brand & Style Guide 2025
+   ============================================================ */
+
+:root {
+  /* ---------- Color: Primary ---------- */
+  --c-fulcrum-red-aa: #EB1300;     /* AA-Compliant — pop / CTA */
+  --c-dark-red:       #D21100;     /* Brand red */
+  --c-deep-blue:      #034C8C;
+  --c-sky:            #4BAEF8;
+  --c-sky-light:      #B5E3FC;
+  --c-light-blue:     #E5F5FD;
+  --c-white:          #FFFFFF;
+
+  /* ---------- Color: Secondary / Neutrals ---------- */
+  --c-dark-grey:      #414042;     /* Body text */
+  --c-grey:           #767676;
+  --c-light-grey:     #F4F4F4;
+
+  /* ---------- Color: Red shades ---------- */
+  --c-red-100:        #FA4C3C;
+  --c-red-200:        #CF3F32;
+  --c-red-300:        #AD352A;
+  --c-red-400:        #8B2A21;
+
+  /* ---------- Color: Sky / blue shades ---------- */
+  --c-blue-100:       #3CB7FA;
+  --c-blue-200:       #3298CF;
+  --c-blue-300:       #2A7FAD;
+  --c-blue-400:       #21668B;
+
+  /* ---------- Color: Future Vision (AI) ---------- */
+  --c-vision-purple:  #A023FF;
+  --c-vision-100:     #9B84BD;
+  --c-vision-200:     #6B5087;
+  --c-vision-300:     #6227AF;
+  --c-vision-400:     #381360;
+  --grad-future-vision: linear-gradient(90deg, #4BAEF8 0%, #A023FF 100%);
+
+  /* ---------- Typography ---------- */
+  --ff-sans: "Mulish", "Proxima Nova", Arial, system-ui, sans-serif;
+  --ff-serif: Georgia, "Times New Roman", serif;
+  --ff-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Type scale from guidelines */
+  --fs-h1: 55px;   --lh-h1: 1.0;
+  --fs-h2: 40px;   --lh-h2: 1.2;
+  --fs-intro: 32px; --lh-intro: 1.3;
+  --fs-h3: 26px;   --lh-h3: 1.25;
+  --fs-h4: 22px;   --lh-h4: 1.25;
+  --fs-h5: 20px;   --lh-h5: 1.4;
+  --fs-body: 20px; --lh-body: 1.5;
+  --fs-h6: 16px;   --lh-h6: 1.4;
+  --fs-body-sm: 16px; --lh-body-sm: 1.4;
+  --fs-eyebrow: 16px; --lh-eyebrow: 1.25;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+  --s-24: 96px;
+
+  /* ---------- Radius ---------- */
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-pill: 999px;
+
+  /* ---------- Elevation ---------- */
+  --shadow-sm: 0 1px 2px rgba(20, 30, 40, .06), 0 1px 1px rgba(20, 30, 40, .04);
+  --shadow-md: 0 4px 12px rgba(20, 30, 40, .08), 0 1px 2px rgba(20, 30, 40, .04);
+  --shadow-lg: 0 16px 40px rgba(20, 30, 40, .10), 0 2px 6px rgba(20, 30, 40, .04);
+
+  /* ---------- Layout ---------- */
+  --sidebar-w: 248px;
+  --page-max: 1180px;
+}
+
+/* ============================================================
+   RESET / BASE
+   ============================================================ */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--ff-sans);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body-sm);
+  color: var(--c-dark-grey);
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+a { color: var(--c-fulcrum-red-aa); text-decoration: none; font-weight: 700; }
+a:hover { text-decoration: underline; }
+
+/* ============================================================
+   TYPOGRAPHY UTILITIES
+   ============================================================ */
+.t-h1, .t-h2, .t-h3, .t-h4, .t-h5, .t-h6 { color: var(--c-dark-grey); margin: 0; font-weight: 800; }
+.t-h1 { font-size: var(--fs-h1); line-height: var(--lh-h1); letter-spacing: -0.02em; }
+.t-h2 { font-size: var(--fs-h2); line-height: var(--lh-h2); letter-spacing: -0.01em; }
+.t-h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); }
+.t-h4 { font-size: var(--fs-h4); line-height: var(--lh-h4); }
+.t-h5 { font-size: var(--fs-h5); line-height: var(--lh-h5); }
+.t-h6 { font-size: var(--fs-h6); line-height: var(--lh-h6); }
+.t-intro { font-family: var(--ff-sans); font-weight: 300; font-size: var(--fs-intro); line-height: var(--lh-intro); color: var(--c-dark-grey); }
+.t-body { font-size: var(--fs-body); line-height: var(--lh-body); color: var(--c-dark-grey); }
+.t-body-sm { font-size: var(--fs-body-sm); line-height: var(--lh-body-sm); color: var(--c-dark-grey); }
+.t-eyebrow {
+  font-size: var(--fs-eyebrow);
+  line-height: var(--lh-eyebrow);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--c-fulcrum-red-aa);
+}
+.t-mono { font-family: var(--ff-mono); font-size: 13px; line-height: 1.5; }
+.t-vision {
+  font-family: var(--ff-serif);
+  font-style: italic;
+  font-weight: 700;
+  background: var(--grad-future-vision);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ============================================================
+   COMPONENT PRIMITIVES (used inside the design-system page)
+   ============================================================ */
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--ff-sans);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  padding: 12px 20px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease, transform 60ms ease;
+  text-decoration: none;
+}
+.btn:active { transform: translateY(1px); }
+
+.btn-primary { background: var(--c-fulcrum-red-aa); color: #fff; }
+.btn-primary:hover { background: var(--c-red-300); text-decoration: none; }
+
+.btn-secondary { background: var(--c-deep-blue); color: #fff; }
+.btn-secondary:hover { background: #023A6B; text-decoration: none; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--c-dark-grey);
+  border-color: var(--c-dark-grey);
+}
+.btn-outline:hover { background: var(--c-dark-grey); color: #fff; text-decoration: none; }
+
+.btn-ghost { background: transparent; color: var(--c-fulcrum-red-aa); padding-inline: 8px; }
+.btn-ghost:hover { background: var(--c-light-blue); text-decoration: none; }
+
+.btn-sm { padding: 8px 14px; font-size: 13px; }
+.btn-lg { padding: 16px 28px; font-size: 17px; }
+
+/* Card */
+.card {
+  background: #fff;
+  border: 1px solid #ECECEE;
+  border-radius: var(--r-md);
+  padding: var(--s-6);
+}
+.card-elev { box-shadow: var(--shadow-md); border-color: transparent; }
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: var(--r-pill);
+  background: var(--c-light-blue);
+  color: var(--c-deep-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.badge-red { background: #FDE5E1; color: var(--c-fulcrum-red-aa); }
+.badge-grey { background: var(--c-light-grey); color: var(--c-dark-grey); }
+.badge-sky { background: var(--c-sky-light); color: var(--c-deep-blue); }
+.badge-vision { background: #F1E6FE; color: var(--c-vision-300); }
+
+/* Input */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: 13px; font-weight: 700; color: var(--c-dark-grey); }
+.input,
+.select,
+.textarea {
+  font-family: var(--ff-sans);
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 1.5px solid #DCDFE3;
+  border-radius: var(--r-sm);
+  background: #fff;
+  color: var(--c-dark-grey);
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--c-sky);
+  box-shadow: 0 0 0 3px rgba(75,174,248,0.25);
+}
+
+.checkbox-row { display: inline-flex; align-items: center; gap: 8px; }
+.checkbox {
+  appearance: none;
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--c-grey);
+  border-radius: 3px;
+  background: #fff;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+}
+.checkbox:checked {
+  background: var(--c-fulcrum-red-aa);
+  border-color: var(--c-fulcrum-red-aa);
+}
+.checkbox:checked::after {
+  content: "";
+  width: 10px; height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}

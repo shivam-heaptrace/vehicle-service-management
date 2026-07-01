@@ -1,0 +1,219 @@
+/* =================================================================
+   FULCRUM DESIGN SYSTEM — colors_and_type.css
+   Drop-in tokens for cross-project use. Import this from any
+   project that references the Fulcrum design system:
+
+      @import url("../<this-system>/colors_and_type.css");
+
+   Source: Fulcrum Brand & Style Guide 2025.
+   ================================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* -------- BASE COLOR TOKENS -------- */
+  /* Primary brand */
+  --fulcrum-red-aa:   #EB1300;   /* AA-compliant pop. CTAs, hyperlinks. */
+  --fulcrum-dark-red: #D21100;
+  --fulcrum-deep-blue:#034C8C;
+  --fulcrum-sky:      #4BAEF8;
+  --fulcrum-sky-light:#B5E3FC;
+  --fulcrum-light-blue:#E5F5FD;
+  --fulcrum-white:    #FFFFFF;
+
+  /* Neutrals */
+  --fulcrum-dark-grey:#414042;   /* Body text */
+  --fulcrum-grey:     #767676;
+  --fulcrum-light-grey:#F4F4F4;
+
+  /* Red shades */
+  --fulcrum-red-100:  #FA4C3C;
+  --fulcrum-red-200:  #EB1300;   /* AA */
+  --fulcrum-red-300:  #CF3F32;
+  --fulcrum-red-400:  #AD352A;
+  --fulcrum-red-500:  #8B2A21;
+
+  /* Sky / blue shades */
+  --fulcrum-blue-100: #3CB7FA;
+  --fulcrum-blue-200: #4BAEF8;
+  --fulcrum-blue-300: #3298CF;
+  --fulcrum-blue-400: #2A7FAD;
+  --fulcrum-blue-500: #21668B;
+
+  /* Future Vision (AI only) */
+  --fulcrum-vision-purple: #A023FF;
+  --fulcrum-vision-100: #9B84BD;
+  --fulcrum-vision-200: #6B5087;
+  --fulcrum-vision-300: #6227AF;
+  --fulcrum-vision-400: #381360;
+  --fulcrum-vision-gradient: linear-gradient(90deg, #4BAEF8 0%, #A023FF 100%);
+
+  /* -------- SEMANTIC COLOR TOKENS -------- */
+  --fg-1: var(--fulcrum-dark-grey);   /* default text */
+  --fg-2: #5A6573;                    /* secondary text */
+  --fg-3: var(--fulcrum-grey);        /* tertiary / meta */
+  --fg-inverse: #FFFFFF;
+  --fg-accent: var(--fulcrum-red-aa);
+  --fg-link: var(--fulcrum-red-aa);
+
+  --bg-1: #FFFFFF;                    /* surface */
+  --bg-2: var(--fulcrum-light-grey);  /* sunken */
+  --bg-3: var(--fulcrum-sky-light);   /* brand surface */
+  --bg-4: var(--fulcrum-light-blue);  /* faintest brand surface */
+  --bg-inverse: #0E1116;
+
+  --border-1: #ECECEE;
+  --border-2: #DCDFE3;
+  --border-strong: var(--fulcrum-dark-grey);
+
+  --focus-ring: 0 0 0 3px rgba(75, 174, 248, 0.35);
+
+  /* -------- TYPE FAMILIES -------- */
+  --ff-sans: "Mulish", "Proxima Nova", Arial, system-ui, sans-serif;
+  --ff-serif: Georgia, "Times New Roman", serif;           /* AI / Future Vision only */
+  --ff-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* -------- TYPE SCALE (digital hierarchy from guidelines) -------- */
+  --fs-h1: 55px;      --lh-h1: 1.0;
+  --fs-h2: 40px;      --lh-h2: 1.2;
+  --fs-intro: 32px;   --lh-intro: 1.3;
+  --fs-h3: 26px;      --lh-h3: 1.25;
+  --fs-h4: 22px;      --lh-h4: 1.25;
+  --fs-h5: 20px;      --lh-h5: 1.4;
+  --fs-body: 20px;    --lh-body: 1.5;
+  --fs-h6: 16px;      --lh-h6: 1.4;
+  --fs-body-sm: 16px; --lh-body-sm: 1.4;
+  --fs-eyebrow: 16px; --lh-eyebrow: 1.25;
+
+  /* -------- SPACING -------- */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px;
+  --s-12: 48px; --s-16: 64px; --s-20: 80px; --s-24: 96px;
+
+  /* -------- RADII -------- */
+  --r-xs: 2px; --r-sm: 4px; --r-md: 6px; --r-lg: 10px; --r-pill: 999px;
+
+  /* -------- ELEVATION -------- */
+  --shadow-sm: 0 1px 2px rgba(20, 30, 40, .06), 0 1px 1px rgba(20, 30, 40, .04);
+  --shadow-md: 0 4px 12px rgba(20, 30, 40, .08), 0 1px 2px rgba(20, 30, 40, .04);
+  --shadow-lg: 0 16px 40px rgba(20, 30, 40, .10), 0 2px 6px rgba(20, 30, 40, .04);
+
+  /* -------- MOTION -------- */
+  --ease-out: cubic-bezier(0.2, 0.0, 0, 1.0);
+  --dur-fast: 120ms;
+  --dur-med:  200ms;
+}
+
+/* =================================================================
+   SEMANTIC TYPE STYLES
+   Use class names OR plain elements — both are styled.
+   ================================================================= */
+
+html { font-family: var(--ff-sans); color: var(--fg-1); }
+body { font-size: var(--fs-body-sm); line-height: var(--lh-body-sm); }
+
+h1, .h1 {
+  font-family: var(--ff-sans);
+  font-weight: 800;
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: -0.02em;
+  color: var(--fg-1);
+  margin: 0;
+}
+h2, .h2 {
+  font-family: var(--ff-sans);
+  font-weight: 800;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: -0.01em;
+  color: var(--fg-1);
+  margin: 0;
+}
+.intro {
+  font-family: var(--ff-sans);
+  font-weight: 300;
+  font-size: var(--fs-intro);
+  line-height: var(--lh-intro);
+  color: var(--fg-1);
+  margin: 0;
+}
+h3, .h3 {
+  font-family: var(--ff-sans);
+  font-weight: 800;
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  color: var(--fg-1);
+  margin: 0;
+}
+h4, .h4 {
+  font-family: var(--ff-sans);
+  font-weight: 800;
+  font-size: var(--fs-h4);
+  line-height: var(--lh-h4);
+  color: var(--fg-1);
+  margin: 0;
+}
+h5, .h5 {
+  font-family: var(--ff-sans);
+  font-weight: 800;
+  font-size: var(--fs-h5);
+  line-height: var(--lh-h5);
+  color: var(--fg-1);
+  margin: 0;
+}
+.body, p {
+  font-family: var(--ff-sans);
+  font-weight: 400;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--fg-1);
+  margin: 0;
+}
+h6, .h6 {
+  font-family: var(--ff-sans);
+  font-weight: 800;
+  font-size: var(--fs-h6);
+  line-height: var(--lh-h6);
+  color: var(--fg-1);
+  margin: 0;
+}
+.body-sm {
+  font-family: var(--ff-sans);
+  font-weight: 400;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body-sm);
+  color: var(--fg-1);
+}
+.eyebrow {
+  font-family: var(--ff-sans);
+  font-weight: 800;
+  font-size: var(--fs-eyebrow);
+  line-height: var(--lh-eyebrow);
+  color: var(--fg-accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.mono, code {
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Future Vision: italic Georgia, gradient — use INSIDE a headline */
+.vision-em {
+  font-family: var(--ff-serif);
+  font-style: italic;
+  font-weight: 700;
+  background: var(--fulcrum-vision-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+a {
+  color: var(--fg-link);
+  font-weight: 700;
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }

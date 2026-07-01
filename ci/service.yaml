@@ -1,0 +1,26 @@
+name: vehicle-service-management
+image: gcr.io/flcrm-ai/vehicle-service-management
+app_type: default
+
+vpc_subnetwork: projects/flcrm-ai/regions/us-east1/subnetworks/ai-coe-subnet-useast1-apps
+
+wif_okta_groups:
+  - gcp-ai-coe-standard
+
+cloudsql_enabled: true
+cloudsql_instance_name: ai-coe-postgresql-shared
+cloudsql_dbname: vehicle_service_management_db
+cloudsql_user_password_secret: vehicle-service-management-db-password
+
+envs:
+  - name: DB_USER
+    value: "vehicle-service-management"
+  - name: DB_NAME
+    value: "vehicle_service_management_db"
+  - name: CLOUDSQL_CONNECTION_NAME
+    value: "flcrm-ai:us-east1:ai-coe-postgresql-shared"
+
+secret_env_vars:
+  - name: DB_PASSWORD
+    secret: vehicle-service-management-db-password
+    version: latest

@@ -1,0 +1,22 @@
+name: LB / Networking
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ci/networking.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  networking:
+    permissions:
+      contents: write      # commit ALB config changes back to gcp-architecture
+      id-token: write      # GCP Workload Identity for Terraform
+      actions: write       # allow Actions API operations
+    uses: flcrm-ai/gcp-architecture/.github/workflows/networking.yml@main
+    secrets: inherit

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vehicle Service Management</title>
+  <link rel="stylesheet" href="/colors_and_type.css" />
+  <link rel="stylesheet" href="/tokens.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: var(--bg-2); min-height: 100vh; }
+    .nav-tab { padding: 8px 16px; border-radius: var(--r-sm); cursor: pointer; font-weight: 700; font-size: 14px; color: rgba(255,255,255,0.75); transition: background 120ms ease, color 120ms ease; border: none; background: transparent; }
+    .nav-tab:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-tab.active { background: rgba(255,255,255,0.18); color: #fff; }
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--r-pill); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    .status-scheduled { background: #E5F5FD; color: var(--fulcrum-blue-400); }
+    .status-in_progress { background: #FFF8E1; color: #B8860B; }
+    .status-completed { background: #E8F5E9; color: #2E7D32; }
+    .status-cancelled { background: #FDECEA; color: var(--fulcrum-red-aa); }
+    .status-pending { background: #FFF3E0; color: #E65100; }
+    .status-paid { background: #E8F5E9; color: #2E7D32; }
+    .status-overdue { background: #FDECEA; color: var(--fulcrum-red-aa); }
+    .status-partial { background: #F3E5F5; color: #6A1B9A; }
+    .stat-card { background: #fff; border: 1px solid var(--border-1); border-radius: var(--r-md); padding: 20px 24px; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .data-table th { padding: 10px 14px; text-align: left; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-2); border-bottom: 2px solid var(--border-1); }
+    .data-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-1); color: var(--fg-1); vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover { background: var(--bg-4); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
+    .modal-box { background: #fff; border-radius: var(--r-lg); padding: 28px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+    .form-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-row label { font-size: 13px; font-weight: 700; color: var(--fg-1); }
+    .form-row input, .form-row select, .form-row textarea { font-family: var(--ff-sans); font-size: 15px; padding: 10px 12px; border: 1.5px solid var(--border-2); border-radius: var(--r-sm); background: #fff; color: var(--fg-1); outline: none; transition: border-color 120ms ease, box-shadow 120ms ease; }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--fulcrum-sky); box-shadow: var(--focus-ring); }
+    .empty-state { text-align: center; padding: 60px 24px; color: var(--fg-3); }
+    .empty-state h4 { font-size: 18px; font-weight: 700; color: var(--fg-2); margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <header style="background: var(--fulcrum-deep-blue); height: 56px;" class="flex items-center px-6 gap-4">
+    <span style="color:#fff; font-weight:800; font-family:var(--ff-sans); font-size:18px;">Vehicle Service Management</span>
+    <div id="nav-tabs" class="flex items-center gap-1 ml-6"></div>
+    <div class="ml-auto" id="user-display" style="color:rgba(255,255,255,0.7); font-size:13px;"></div>
+  </header>
+  <main class="max-w-6xl mx-auto px-6 py-8" id="main-content"></main>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script>
+  const { createElement: h, useState, useEffect, useCallback } = React;
+  const root = ReactDOM.createRoot(document.getElementById('main-content'));
+  const navRoot = ReactDOM.createRoot(document.getElementById('nav-tabs'));
+
+  const TABS = ['Dashboard','Appointments','Customers','Mechanics','Billing'];
+
+  async function apiFetch(url, opts) {
+    const res = await fetch(url, opts);
+    if (!res.ok) { const e = await res.json().catch(()=>({error:'Network error'})); throw new Error(e.error||'Request failed'); }
+    return res.json();
+  }
+
+  // ---- Status badge
+  function StatusBadge({status}) {
+    return h('span',{className:'status-badge status-'+status}, status.replace('_',' '));
+  }
+
+  // ---- Dashboard
+  function Dashboard() {
+    const [data, setData] = useState(null);
+    const [error, setError] = useState('');
+    useEffect(()=>{ apiFetch('/api/dashboard').then(setData).catch(e=>setError(e.message)); },[]);
+    if (error) return h('p',{style:{color:'var(--fulcrum-red-aa)'}},error);
+    if (!data) return h('p',{style:{color:'var(--fg-2)'}},'Loading...');
+    const a = data.appointments||{};
+    return h('div',null,
+      h('span',{className:'eyebrow'},'Overview'),
+      h('h1',{className:'h2 mt-1 mb-6'},"Today's Dashboard"),
+      h('div',{className:'grid grid-cols-2 gap-4 mb-8', style:{gridTemplateColumns:'repeat(4,1fr)'}},
+        h('div',{className:'stat-card'},h('div',{style:{fontSize:13,color:'var(--fg-2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:4}},'Scheduled'),h('div',{style:{fontSize:32,fontWeight:800,color:'var(--fulcrum-deep-blue)'}},(a.scheduled||0))),
+        h('div',{className:'stat-card'},h('div',{style:{fontSize:13,color:'var(--fg-2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:4}},'In Progress'),h('div',{style:{fontSize:32,fontWeight:800,color:'#B8860B'}},(a.in_progress||0))),
+        h('div',{className:'stat-card'},h('div',{style:{fontSize:13,color:'var(--fg-2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:4}},'Completed Today'),h('div',{style:{fontSize:32,fontWeight:800,color:'#2E7D32'}},(a.completed_today||0))),
+        h('div',{className:'stat-card'},h('div',{style:{fontSize:13,color:'var(--fg-2)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:4}},'Pending Billing'),h('div',{style:{fontSize:32,fontWeight:800,color:'var(--fulcrum-red-aa)'}},'$'+Number(data.pending_billing_total||0).toFixed(2)))
+      ),
+      h('div',{className:'grid grid-cols-2 gap-6'},
+        h('div',{className:'stat-card'},
+          h('h4',{className:'h4 mb-1'},'Customers'), h('p',{style:{fontSize:28,fontWeight:800,color:'var(--fg-1)'}},(data.total_customers||0)),h('p',{style:{fontSize:13,color:'var(--fg-2)'}},'Total registered')
+        ),
+        h('div',{className:'stat-card'},
+          h('h4',{className:'h4 mb-1'},'Vehicles'), h('p',{style:{fontSize:28,fontWeight:800,color:'var(--fg-1)'}},(data.total_vehicles||0)),h('p',{style:{fontSize:13,color:'var(--fg-2)'}},'Total registered')
+        )
+      )
+    );
+  }
+
+  // ---- Appointments
+  function Appointments() {
+    const [items, setItems] = useState([]);
+    const [filter, setFilter] = useState('');
+    const [mechanics, setMechanics] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const load = useCallback(()=>{
+      setLoading(true);
+      const url = filter ? '/api/appointments?status='+filter : '/api/appointments';
+      Promise.all([apiFetch(url), apiFetch('/api/mechanics')])
+        .then(([a,m])=>{ setItems(a); setMechanics(m); })
+        .catch(e=>setError(e.message))
+        .finally(()=>setLoading(false));
+    },[filter]);
+    useEffect(()=>{ load(); },[load]);
+
+    const updateStatus = async (id, status) => {
+      try { await apiFetch('/api/appointments/'+id+'/status',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})}); load(); }
+      catch(e){ alert(e.message); }
+    };
+
+    const STATUSES = ['','scheduled','in_progress','completed','cancelled'];
+    return h('div',null,
+      h('div',{className:'flex items-center justify-between mb-6'},
+        h('div',null,
+          h('span',{className:'eyebrow'},'Service'),
+          h('h1',{className:'h2 mt-1'},'Appointments')
+        ),
+        h('div',{className:'flex items-center gap-3'},
+          h('select',{className:'input',style:{minWidth:160},value:filter,onChange:e=>setFilter(e.target.value)},
+            STATUSES.map(s=>h('option',{key:s,value:s},s?s.replace('_',' '):'All statuses'))
+          ),
+          h('button',{className:'btn btn-primary',onClick:()=>setShowModal(true)},'+ Book Appointment')
+        )
+      ),
+      error && h('p',{style:{color:'var(--fulcrum-red-aa)'}},'Error: '+error),
+      loading ? h('p',{style:{color:'var(--fg-2)'}},'Loading...') :
+        items.length === 0 ? h('div',{className:'card empty-state'},h('h4',null,'No appointments found'),h('p',null,'Try a different filter or book a new appointment.')) :
+        h('div',{className:'card',style:{padding:0,overflow:'hidden'}},
+          h('table',{className:'data-table'},
+            h('thead',null,h('tr',null,
+              h('th',null,'Date & Time'),h('th',null,'Customer'),h('th',null,'Vehicle'),
+              h('th',null,'Service'),h('th',null,'Mechanic'),h('th',null,'Status'),h('th',null,'Actions')
+            )),
+            h('tbody',null,items.map(a=>h('tr',{key:a.id},
+              h('td',null,new Date(a.appointment_date).toLocaleString()),
+              h('td',null,a.customer_first+' '+a.customer_last),
+              h('td',null,a.year+' '+a.make+' '+a.model+h('br',null),h('span',{style:{fontSize:12,color:'var(--fg-3)'}},a.license_plate)),
+              h('td',null,a.service_type),
+              h('td',null,a.mechanic_first ? a.mechanic_first+' '+a.mechanic_last : h('span',{style:{color:'var(--fg-3)'}},'Unassigned')),
+              h('td',null,h(StatusBadge,{status:a.status})),
+              h('td',null,
+                a.status === 'scheduled' && h('button',{className:'btn btn-outline btn-sm',onClick:()=>updateStatus(a.id,'in_progress')},'Start'),
+                a.status === 'in_progress' && h('button',{className:'btn btn-secondary btn-sm',onClick:()=>updateStatus(a.id,'completed')},'Complete'),
+                ' ',
+                a.status !== 'cancelled' && a.status !== 'completed' && h('button',{className:'btn btn-ghost btn-sm',style:{color:'var(--fg-3)'},onClick:()=>{ if(confirm('Cancel this appointment?')) updateStatus(a.id,'cancelled'); }},'Cancel')
+              )
+            )))
+          )
+        ),
+      showModal && h(BookingModal,{mechanics,onClose:()=>setShowModal(false),onSaved:()=>{ setShowModal(false); load(); }})
+    );
+  }
+
+  function BookingModal({mechanics, onClose, onSaved}) {
+    const [customers, setCustomers] = useState([]);
+    const [vehicles, setVehicles] = useState([]);
+    const [form, setForm] = useState({customer_id:'',vehicle_id:'',mechanic_id:'',appointment_date:'',service_type:'',description:'',estimated_hours:''});
+    const [saving, setSaving] = useState(false);
+    useEffect(()=>{ apiFetch('/api/customers').then(setCustomers).catch(()=>{}); },[]);
+    useEffect(()=>{
+      if(form.customer_id) apiFetch('/api/customers/'+form.customer_id+'/vehicles').then(setVehicles).catch(()=>{});
+      else setVehicles([]);
+    },[form.customer_id]);
+    const set = k => e => setForm(f=>({...f,[k]:e.target.value}));
+    const save = async e => {
+      e.preventDefault();
+      setSaving(true);
+      try {
+        await apiFetch('/api/appointments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...form,customer_id:Number(form.customer_id),vehicle_id:Number(form.vehicle_id),mechanic_id:form.mechanic_id?Number(form.mechanic_id):null})});
+        onSaved();
+      } catch(err){ alert(err.message); setSaving(false); }
+    };
+    return h('div',{className:'modal-overlay',onClick:e=>{if(e.target===e.currentTarget)onClose();}},
+      h('div',{className:'modal-box'},
+        h('h3',{className:'h4 mb-4'},'Book New Appointment'),
+        h('form',{onSubmit:save},
+          h('div',{className:'form-row'},h('label',null,'Customer'),h('select',{required:true,value:form.customer_id,onChange:set('customer_id')},h('option',{value:''},'Select customer...'),customers.map(c=>h('option',{key:c.id,value:c.id},c.first_name+' '+c.last_name+' ('+c.email+')')))),
+          h('div',{className:'form-row'},h('label',null,'Vehicle'),h('select',{required:true,value:form.vehicle_id,onChange:set('vehicle_id'),disabled:!form.customer_id},h('option',{value:''},'Select vehicle...'),vehicles.map(v=>h('option',{key:v.id,value:v.id},v.year+' '+v.make+' '+v.model+' - '+v.license_plate)))),
+          h('div',{className:'form-row'},h('label',null,'Mechanic (optional)'),h('select',{value:form.mechanic_id,onChange:set('mechanic_id')},h('option',{value:''},'Unassigned'),mechanics.map(m=>h('option',{key:m.id,value:m.id},m.first_name+' '+m.last_name+' — '+m.specialization)))),
+          h('div',{className:'form-row'},h('label',null,'Date & Time'),h('input',{type:'datetime-local',required:true,value:form.appointment_date,onChange:set('appointment_date')})),
+          h('div',{className:'form-row'},h('label',null,'Service Type'),h('input',{type:'text',required:true,placeholder:'e.g. Oil Change, Brake Service',value:form.service_type,onChange:set('service_type')})),
+          h('div',{className:'form-row'},h('label',null,'Description'),h('textarea',{rows:3,value:form.description,onChange:set('description'),placeholder:'Describe the issue or work needed...'})),
+          h('div',{className:'form-row'},h('label',null,'Estimated Hours'),h('input',{type:'number',step:'0.5',min:'0',value:form.estimated_hours,onChange:set('estimated_hours')})),
+          h('div',{className:'flex gap-3 justify-end mt-4'},
+            h('button',{type:'button',className:'btn btn-outline',onClick:onClose},'Cancel'),
+            h('button',{type:'submit',className:'btn btn-primary',disabled:saving},saving?'Saving...':'Book Appointment')
+          )
+        )
+      )
+    );
+  }
+
+  // ---- Customers
+  function Customers() {
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const load = ()=>{ setLoading(true); apiFetch('/api/customers').then(setItems).catch(e=>setError(e.message)).finally(()=>setLoading(false)); };
+    useEffect(()=>{ load(); },[]);
+    return h('div',null,
+      h('div',{className:'flex items-center justify-between mb-6'},
+        h('div',null,h('span',{className:'eyebrow'},'Registry'),h('h1',{className:'h2 mt-1'},'Customers')),
+        h('button',{className:'btn btn-primary',onClick:()=>setShowModal(true)},'+ Add Customer')
+      ),
+      error && h('p',{style:{color:'var(--fulcrum-red-aa)'}},'Error: '+error),
+      loading ? h('p',{style:{color:'var(--fg-2)'}},'Loading...') :
+        items.length === 0 ? h('div',{className:'card empty-state'},h('h4',null,'No customers yet'),h('p',null,'Add your first customer to get started.')) :
+        h('div',{className:'card',style:{padding:0,overflow:'hidden'}},
+          h('table',{className:'data-table'},
+            h('thead',null,h('tr',null,h('th',null,'Name'),h('th',null,'Email'),h('th',null,'Phone'),h('th',null,'Address'),h('th',null,'Vehicles'))),
+            h('tbody',null,items.map(c=>h('tr',{key:c.id},
+              h('td',null,c.first_name+' '+c.last_name),
+              h('td',null,c.email),
+              h('td',null,c.phone||'—'),
+              h('td',null,c.address||'—'),
+              h('td',null,h('span',{className:'badge badge-sky'},c.vehicle_count+' vehicle'+(c.vehicle_count===1?'':'s')))
+            )))
+          )
+        ),
+      showModal && h(CustomerModal,{onClose:()=>setShowModal(false),onSaved:()=>{ setShowModal(false); load(); }})
+    );
+  }
+
+  function CustomerModal({onClose, onSaved}) {
+    const [form, setForm] = useState({first_name:'',last_name:'',email:'',phone:'',address:''});
+    const [saving, setSaving] = useState(false);
+    const set = k => e => setForm(f=>({...f,[k]:e.target.value}));
+    const save = async e => {
+      e.preventDefault(); setSaving(true);
+      try { await apiFetch('/api/customers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)}); onSaved(); }
+      catch(err){ alert(err.message); setSaving(false); }
+    };
+    return h('div',{className:'modal-overlay',onClick:e=>{if(e.target===e.currentTarget)onClose();}},
+      h('div',{className:'modal-box'},
+        h('h3',{className:'h4 mb-4'},'Add Customer'),
+        h('form',{onSubmit:save},
+          h('div',{className:'grid grid-cols-2 gap-4'},
+            h('div',{className:'form-row'},h('label',null,'First Name'),h('input',{required:true,value:form.first_name,onChange:set('first_name')})),
+            h('div',{className:'form-row'},h('label',null,'Last Name'),h('input',{required:true,value:form.last_name,onChange:set('last_name')}))
+          ),
+          h('div',{className:'form-row'},h('label',null,'Email'),h('input',{type:'email',required:true,value:form.email,onChange:set('email')})),
+          h('div',{className:'form-row'},h('label',null,'Phone'),h('input',{type:'tel',value:form.phone,onChange:set('phone')})),
+          h('div',{className:'form-row'},h('label',null,'Address'),h('textarea',{rows:2,value:form.address,onChange:set('address')})),
+          h('div',{className:'flex gap-3 justify-end mt-4'},
+            h('button',{type:'button',className:'btn btn-outline',onClick:onClose},'Cancel'),
+            h('button',{type:'submit',className:'btn btn-primary',disabled:saving},saving?'Saving...':'Add Customer')
+          )
+        )
+      )
+    );
+  }
+
+  // ---- Mechanics
+  function Mechanics() {
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    useEffect(()=>{ apiFetch('/api/mechanics').then(setItems).catch(e=>setError(e.message)).finally(()=>setLoading(false)); },[]);
+    return h('div',null,
+      h('span',{className:'eyebrow'},'Team'),
+      h('h1',{className:'h2 mt-1 mb-6'},'Mechanics'),
+      error && h('p',{style:{color:'var(--fulcrum-red-aa)'}},'Error: '+error),
+      loading ? h('p',{style:{color:'var(--fg-2)'}},'Loading...') :
+        h('div',{className:'grid grid-cols-2 gap-4', style:{gridTemplateColumns:'repeat(auto-fill, minmax(280px,1fr))'}},
+          items.map(m=>h('div',{key:m.id,className:'card'},
+            h('div',{className:'flex items-center gap-3 mb-3'},
+              h('div',{style:{width:44,height:44,borderRadius:'50%',background:'var(--bg-3)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:16,color:'var(--fulcrum-deep-blue)'}}, m.first_name[0]+m.last_name[0]),
+              h('div',null,
+                h('div',{style:{fontWeight:800,fontSize:15,color:'var(--fg-1)'}},m.first_name+' '+m.last_name),
+                h('div',{style:{fontSize:13,color:'var(--fg-2)'}},m.specialization)
+              )
+            ),
+            h('div',{className:'flex gap-2'},
+              h('span',{className:'badge badge-sky'},m.active_jobs+' active'),
+              h('span',{className:'badge badge-grey'},m.completed_jobs+' done')
+            )
+          ))
+        )
+    );
+  }
+
+  // ---- Billing
+  function Billing() {
+    const [items, setItems] = useState([]);
+    const [filter, setFilter] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const load = useCallback(()=>{
+      setLoading(true);
+      const url = filter ? '/api/billing?payment_status='+filter : '/api/billing';
+      apiFetch(url).then(setItems).catch(e=>setError(e.message)).finally(()=>setLoading(false));
+    },[filter]);
+    useEffect(()=>{ load(); },[load]);
+    const markPaid = async (id, method) => {
+      try { await apiFetch('/api/billing/'+id+'/payment',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({payment_status:'paid',payment_method:method||'cash'})}); load(); }
+      catch(e){ alert(e.message); }
+    };
+    const STATUSES = ['','pending','paid','partial','overdue'];
+    return h('div',null,
+      h('div',{className:'flex items-center justify-between mb-6'},
+        h('div',null,h('span',{className:'eyebrow'},'Finance'),h('h1',{className:'h2 mt-1'},'Billing')),
+        h('select',{className:'input',value:filter,onChange:e=>setFilter(e.target.value)},
+          STATUSES.map(s=>h('option',{key:s,value:s},s?s.charAt(0).toUpperCase()+s.slice(1):'All statuses'))
+        )
+      ),
+      error && h('p',{style:{color:'var(--fulcrum-red-aa)'}},'Error: '+error),
+      loading ? h('p',{style:{color:'var(--fg-2)'}},'Loading...') :
+        items.length === 0 ? h('div',{className:'card empty-state'},h('h4',null,'No invoices found')) :
+        h('div',{className:'card',style:{padding:0,overflow:'hidden'}},
+          h('table',{className:'data-table'},
+            h('thead',null,h('tr',null,h('th',null,'Invoice Date'),h('th',null,'Customer'),h('th',null,'Vehicle'),h('th',null,'Service'),h('th',null,'Total'),h('th',null,'Status'),h('th',null,'Actions'))),
+            h('tbody',null,items.map(b=>h('tr',{key:b.id},
+              h('td',null,new Date(b.invoice_date).toLocaleDateString()),
+              h('td',null,b.customer_first+' '+b.customer_last),
+              h('td',null,b.year+' '+b.make+' '+b.model),
+              h('td',null,b.service_type),
+              h('td',{style:{fontWeight:700}},'$'+Number(b.total_amount).toFixed(2)),
+              h('td',null,h(StatusBadge,{status:b.payment_status})),
+              h('td',null,
+                b.payment_status === 'pending' && h('button',{className:'btn btn-secondary btn-sm',onClick:()=>{ const m=prompt('Payment method (cash/credit_card/debit_card):','cash'); if(m) markPaid(b.id,m); }},'Mark Paid')
+              )
+            )))
+          )
+        )
+    );
+  }
+
+  // ---- App root
+  function App() {
+    const [tab, setTab] = useState('Dashboard');
+    useEffect(()=>{
+      fetch('/api/me').then(r=>r.json()).then(d=>{ document.getElementById('user-display').textContent = d.email !== 'unknown' ? d.email : ''; }).catch(()=>{});
+    },[]);
+    const views = { Dashboard, Appointments, Customers, Mechanics, Billing };
+    const View = views[tab];
+    return h('div',null,h(View,null));
+  }
+
+  function Nav({tab, setTab}) {
+    return h('div',{className:'flex items-center gap-1'},
+      TABS.map(t=>h('button',{key:t,className:'nav-tab'+(tab===t?' active':''),onClick:()=>setTab(t)},t))
+    );
+  }
+
+  // Shared state via a simple pub/sub so Nav and App can sync
+  let _tab = 'Dashboard';
+  let _setTab = null;
+  let _navSetTab = null;
+
+  function AppRoot() {
+    const [tab, setTab] = useState('Dashboard');
+    _tab = tab;
+    _setTab = t => { setTab(t); if (_navSetTab) _navSetTab(t); };
+    const views = { Dashboard, Appointments, Customers, Mechanics, Billing };
+    const View = views[tab];
+    useEffect(()=>{
+      fetch('/api/me').then(r=>r.json()).then(d=>{ document.getElementById('user-display').textContent = d.email !== 'unknown' ? d.email : ''; }).catch(()=>{});
+    },[]);
+    return h(View,null);
+  }
+
+  function NavRoot() {
+    const [tab, setTabState] = useState('Dashboard');
+    _navSetTab = t => setTabState(t);
+    return h('div',{className:'flex items-center gap-1'},
+      TABS.map(t=>h('button',{key:t,className:'nav-tab'+(tab===t?' active':''),onClick:()=>{ setTabState(t); if(_setTab) _setTab(t); }},t))
+    );
+  }
+
+  root.render(h(AppRoot,null));
+  navRoot.render(h(NavRoot,null));
+  </script>
+</body>
+</html>

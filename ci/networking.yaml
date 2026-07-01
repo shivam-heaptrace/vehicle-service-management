@@ -1,0 +1,7 @@
+name: vehicle-service-management
+subdomain: vehicle-service-management
+app_type: default
+
+routing_rules:
+  - path: "/*"
+    auth_enabled: true

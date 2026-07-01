@@ -1,0 +1,21 @@
+name: CI/CD Service
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - 'ci/networking.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cicd:
+    permissions:
+      contents: write      # version job: create tags & releases
+      id-token: write      # build/deploy jobs: GCP Workload Identity
+      packages: write      # build/deploy jobs: push container images
+      actions: write       # allow Actions API operations
+    uses: flcrm-ai/gcp-architecture/.github/workflows/service-cicd.yml@main
+    secrets: inherit
